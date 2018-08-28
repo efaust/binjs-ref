@@ -183,6 +183,9 @@ impl Visitor<(), Option<LevelGuard>> for LazifierVisitor {
         if let Some(WalkPathItem { interface: ASTNode::CallExpression, field: ASTField::Callee }) = path.get(0) {
             return Ok(None)
         }
+        if let Some(PathItem { interface: ASTNode::NewExpression, field:ASTField::Callee }) = path.get(0) {
+            return Ok(None)
+        }
         match *node {
             ViewMutFunctionExpression::EagerFunctionExpression(ref mut steal) => {
                 Self::steal(*steal, |stolen| {
