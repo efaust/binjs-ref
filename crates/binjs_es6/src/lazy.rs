@@ -180,11 +180,11 @@ impl Visitor<(), Option<LevelGuard>> for LazifierVisitor {
     /// Only called if we haven't skipped the subtree.
     fn exit_function_expression(&mut self, path: &WalkPath, node: &mut ViewMutFunctionExpression) -> Result<Option<FunctionExpression>, ()> {
         // Don't lazify code that's going to be used immediately.
-        if let Some(WalkPathItem { interface: ASTNode::CallExpression, field: ASTField::Callee }) = path.get(0) {
-            return Ok(None)
-        }
-        if let Some(PathItem { interface: ASTNode::NewExpression, field:ASTField::Callee }) = path.get(0) {
-            return Ok(None)
+        match path.get(0) {
+            Some(WalkPathItem { interface: ASTNode::CallExpression, field: ASTField::Callee }) => { return Ok(None); }
+            Some(WalkPathItem { interface: ASTNode::NewExpression, field: ASTField::Callee }) => { return Ok(None); }
+            Some(WalkPathItem { interface: ASTNode::StaticMemberExpression, field: ASTField::Object }) => { return Ok(None); }
+            _ => ()
         }
         match *node {
             ViewMutFunctionExpression::EagerFunctionExpression(ref mut steal) => {
