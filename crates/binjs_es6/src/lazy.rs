@@ -181,9 +181,11 @@ impl Visitor<(), Option<LevelGuard>> for LazifierVisitor {
     fn exit_function_expression(&mut self, path: &WalkPath, node: &mut ViewMutFunctionExpression) -> Result<Option<FunctionExpression>, ()> {
         // Don't lazify code that's going to be used immediately.
         match path.get(0) {
-            Some(WalkPathItem { interface: ASTNode::CallExpression, field: ASTField::Callee }) => { return Ok(None); }
-            Some(WalkPathItem { interface: ASTNode::NewExpression, field: ASTField::Callee }) => { return Ok(None); }
+            Some(WalkPathItem { interface: ASTNode::CallExpression, .. }) => { return Ok(None); }
+            Some(WalkPathItem { interface: ASTNode::NewExpression, .. }) => { return Ok(None); }
             Some(WalkPathItem { interface: ASTNode::StaticMemberExpression, field: ASTField::Object }) => { return Ok(None); }
+            Some(WalkPathItem { interface: ASTNode::ComputedMemberExpression, field: ASTField::Object }) => { return Ok(None); }
+            Some(WalkPathItem { interface: ASTNode::VariableDeclarator, field: ASTField::Init }) => { return Ok(None); }
             _ => ()
         }
         match *node {
